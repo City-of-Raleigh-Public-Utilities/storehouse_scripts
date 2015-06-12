@@ -155,15 +155,16 @@ insertfields = ['PROJECTID', 'DEVPLANID', 'PROJECTNAME', 'CPLINK', 'NCPIN', 'DEV
 #Function to get starting projectid for project tracking layer
 def getStartId (feature, field):
 	count = int(arcpy.GetCount_management(feature).getOutput(0))
+	print 'Project Tracking Currently has %d features' % count
 	if count == 0:
 		print 'Starting ProjectID: 100000'
 		return 100000
 	else:
-		with arcpy.da.SearchCursor(feature, field, sql_clause=(None, 'ORDER BY %s DESC' % field)) as cursor:
-			for row in cursor:
-				start = row[0]
-			print 'Starting ProjectID: %d' % start
-			return start
+		rows = arcpy.SearchCursor(feature, "1=1", "", "PROJECTID", "PROJECTID D")
+		row = rows.next()
+		maxId = row.getValue("PROJECTID")
+		print 'Max ProjectID %d' % maxId
+		return maxId
 
 #Adds the matched parcels to the project tracking feature class
 def insertParcelsWithMatchedPins (feature):
